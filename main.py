@@ -1,9 +1,14 @@
+from initialConditions.initialParameters import ParameterMaterial, PropertyMaterial
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# def iterative_solutions(parameters):
+#     while error >= parameters.tol & parameters.max_iterations < 100:
+#         matrices = calculation(mesh, material, matrices)
+#         matrices = boundary_conditions(matrices)
+#
+#         error =
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+if __name__ == "__main__":
+    properties = PropertyMaterial()
+    parameters = ParameterMaterial()
+    a = 1
