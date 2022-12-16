@@ -3,6 +3,12 @@ import numpy as np
 
 
 class MeshData:
+    """
+    Initial mesh data, for a square cavity \n
+    available methods: \n
+    - generation() \n
+    - print_mesh()
+    """
     def __init__(self, n=20, large=1.0):
         self.divisions = n
         self.nodes = n + 1
