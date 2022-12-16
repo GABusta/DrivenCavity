@@ -1,4 +1,5 @@
 from initialConditions.initialParameters import ParameterMaterial, PropertyMaterial
+from meshing.meshFile import MeshData
 
 # def iterative_solutions(parameters):
 #     while error >= parameters.tol & parameters.max_iterations < 100:
@@ -11,4 +12,5 @@ from initialConditions.initialParameters import ParameterMaterial, PropertyMater
 if __name__ == "__main__":
     properties = PropertyMaterial()
     parameters = ParameterMaterial()
+    mesh = MeshData().generation()
     a = 1

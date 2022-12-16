@@ -5,32 +5,33 @@ import numpy as np
 class MeshData:
     def __init__(self, n=20, large=1.0):
         self.divisions = n
+        self.nodes = n + 1
         self.dx = large / self.divisions
         self.distance = []
         self.coordinates = []
         self.connections = []
-        self.numberNodes = self.divisions * self.divisions
+        self.totalNumberNodes = self.nodes ** 2
 
     def generation(self):
 
         # Generation of coordinates
-        self.distance = [i * self.dx for i in range(self.divisions)]
+        self.distance = [i * self.dx for i in range(self.nodes)]
         k = 1
-        for i in range(self.divisions):
-            for j in range(self.divisions):
+        for i in range(self.nodes):
+            for j in range(self.nodes):
                 self.coordinates.append([self.distance[j], self.distance[i]])
 
         # Generation of connections
         cont = 0
-        for i in range(self.divisions):
+        for i in range(self.nodes):
             cont += 20
-            for j in range(self.divisions):
+            for j in range(self.nodes):
                 self.connections.append(
                     [
                         cont + j + 1,
                         cont + j,
-                        cont - self.divisions + j,
-                        cont - self.divisions + j + 1,
+                        cont - self.nodes + j,
+                        cont - self.nodes + j + 1,
                     ]
                 )
         # Generate Dirichlet initial conditions
