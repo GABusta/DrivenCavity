@@ -17,6 +17,7 @@ class MeshData:
         self.coordinates = []
         self.connections = []
         self.totalNumberNodes = self.nodes ** 2
+        self.totalNumberElements = self.divisions ** 2
 
     def generation(self):
 
@@ -54,8 +55,8 @@ class MeshData:
         plt.show()
 
 
+# --- test for the meshing script ---
 if __name__ == "__main__":
-    # test for the meshing script
     mesh = MeshData().generation()
     mesh.print_mesh()
     a = 1
