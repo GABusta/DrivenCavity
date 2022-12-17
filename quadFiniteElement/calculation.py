@@ -34,12 +34,95 @@ def calculation(properties, parameters, mesh, matrices):
         v0_k = [0.25 * np.sum(v0_x), 0.25 * np.sum(v0_y)]
 
         # Velocity gradient per Element "G"
-        # G = [[d(v0k)/dx  , d(v0k)/dxy ],
-        #      [d(v0k)/dyx , d(v0k)/dy  ]]
+        # G = [[ d(v0k)/dx  , d(v0k)/dxy ],
+        #      [ d(v0k)/dyx , d(v0k)/dy  ]]
 
-        # d_v0k_x = elements.inv_Je[0][0] * 4 * (v0_k)
+        d_v0k_x = (
+            elements.inv_Je[0][0]
+            * 4
+            * (
+                v0_x[0] * elements.DH[0][0]
+                + v0_x[1] * elements.DH[0][2]
+                + v0_x[2] * elements.DH[0][4]
+                + v0_x[3] * elements.DH[0][6]
+            )
+        )
+
+        d_v0k_y = (
+            elements.inv_Je[1][1]
+            * 4
+            * (
+                v0_y[0] * elements.DH[2][1]
+                + v0_y[1] * elements.DH[2][3]
+                + v0_y[2] * elements.DH[2][5]
+                + v0_y[3] * elements.DH[2][7]
+            )
+        )
+
+        d_v0k_xy = (
+            elements.inv_Je[1][1]
+            * 4
+            * (
+                v0_x[0] * elements.DH[2][0]
+                + v0_x[1] * elements.DH[2][2]
+                + v0_x[2] * elements.DH[2][4]
+                + v0_x[3] * elements.DH[2][6]
+            )
+        )
+
+        d_v0k_yx = (
+            elements.inv_Je[0][0]
+            * 4
+            * (
+                v0_y[0] * elements.DH[0][1]
+                + v0_y[1] * elements.DH[0][3]
+                + v0_y[2] * elements.DH[0][5]
+                + v0_y[3] * elements.DH[0][7]
+            )
+        )
+
+        matrix_g = np.array([[d_v0k_x, d_v0k_xy], [d_v0k_yx, d_v0k_y]])
+
+        # Elemental Matrices
+        elemental_matrices = QuadElement.matrix_generation(elements, parameters, properties, matrix_g)
+
+        # Global Matrices
 
     return elements
+
+
+class QuadElement:
+    def __init__(self):
+        self.ne = []
+        self.re = []
+        self.ke = []
+
+    def matrix_generation(self, elements, parameters, properties, G):
+        degrees_freedom = 8
+
+        # generation of -->  m.transpose(m)
+        mmt = np.array(
+            [
+                [1.0, 1.0, 0.0, 1.0],
+                [1.0, 1.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0, 0.0],
+                [1.0, 1.0, 0.0, 1.0],
+            ]
+        )
+
+        # generation --> transpose( I - m.transpose(m)/3 ) . (I - m.transpose(m)/3 )
+        I = np.array(
+            [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ]
+        )
+
+        mmt_mmt = np.matmul(np.transpose(I - mmt / 3), I - mmt / 3)
+
+        return self
 
 
 class GaussPoint:
