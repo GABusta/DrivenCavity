@@ -84,7 +84,9 @@ def calculation(properties, parameters, mesh, matrices):
         matrix_g = np.array([[d_v0k_x, d_v0k_xy], [d_v0k_yx, d_v0k_y]])
 
         # Elemental Matrices
-        elemental_matrices = QuadElement.matrix_generation(elements, parameters, properties, matrix_g)
+        elemental_matrices = QuadElement().matrix_generation(
+            elements, parameters, properties, matrix_g, v0_k
+        )
 
         # Global Matrices
 
@@ -97,7 +99,7 @@ class QuadElement:
         self.re = []
         self.ke = []
 
-    def matrix_generation(self, elements, parameters, properties, G):
+    def matrix_generation(self, elements, parameters, properties, matrix_g, v0_k):
         degrees_freedom = 8
 
         # generation of -->  m.transpose(m)
@@ -122,12 +124,60 @@ class QuadElement:
 
         mmt_mmt = np.matmul(np.transpose(I - mmt / 3), I - mmt / 3)
 
+        # Initial matrices
+        k_lan = np.zeros((degrees_freedom, degrees_freedom))
+        k_vv = np.zeros((degrees_freedom, degrees_freedom))
+        ne = np.zeros((degrees_freedom, degrees_freedom))
+        re = np.zeros((degrees_freedom, 1))
+
+        # C - matrix
+        dHv_dx = elements.DH[:2, :] * elements.inv_Je[0, 0]
+        dHv_dy = elements.DH[2:, :] * elements.inv_Je[1, 1]
+        C = v0_k[0] * dHv_dx + v0_k[1] * dHv_dy
+
+        # G - matrix
+        # already calculated
+
+        # N - matrix (convective term)
+        dV = elements.det_Je * elements.w
+        self.ne = (
+            np.transpose(elements.H)
+            * (C + np.matmul(matrix_g, elements.H))
+            * properties.rho
+            * dV
+        )
+        # K - matrix (diffusive term)
+        k_lan = (
+            np.transpose(np.matmul(elements.inv_Je4, elements.DH4))
+            * mmt
+            * elements.inv_Je4
+            * elements.DH4
+            * properties.ian
+            * dV
+        )
+        k_vv = (
+            np.transpose(np.matmul(elements.inv_Je4, elements.DH4))
+            * 2
+            * properties.viscocity
+            * mmt_mmt
+            * elements.inv_Je4
+            * elements.DH4
+            * dV
+        )
+
+        # F - results array
+        self.re = 1
+
+        # ke - return matrix
+
         return self
 
 
 class GaussPoint:
     """
-    Only one gauss point located at center of the QUAD element of 4 nodes.
+    Only one gauss point located at center of the QUAD element of 4 nodes. \n
+    "quad_elements" method fills the object \n
+    gauss points, Je, shape functions
     """
 
     def __init__(self):
