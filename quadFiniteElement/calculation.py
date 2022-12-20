@@ -1,8 +1,11 @@
+from copy import deepcopy
 import numpy as np
+from initialConditions.initialMatrices import InitialMatrix
 
 
-def calculation(properties, parameters, mesh, matrices):
+def global_matrix_calculation(properties, parameters, mesh, matrices):
     elements = GaussPoint().quad_elements()
+    global_matrix = deepcopy(matrices)
     for i in range(mesh.totalNumberElements):
         # Elemental connectivity --> element = [node1, node2, node3, node4]
         conn = [
@@ -15,29 +18,29 @@ def calculation(properties, parameters, mesh, matrices):
         # Average velocity per Element   -->   vo_k = [Vx , Vy]
         v0_x = np.array(
             [
-                matrices.V0[conn[0] * 2 - 1],
-                matrices.V0[conn[1] * 2 - 1],
-                matrices.V0[conn[2] * 2 - 1],
-                matrices.V0[conn[3] * 2 - 1],
+                global_matrix.V0[conn[0] * 2 - 2],
+                global_matrix.V0[conn[1] * 2 - 2],
+                global_matrix.V0[conn[2] * 2 - 2],
+                global_matrix.V0[conn[3] * 2 - 2],
             ]
         )
 
         v0_y = np.array(
             [
-                matrices.V0[conn[0] * 2],
-                matrices.V0[conn[1] * 2],
-                matrices.V0[conn[2] * 2],
-                matrices.V0[conn[3] * 2],
+                global_matrix.V0[conn[0] * 2 - 1],
+                global_matrix.V0[conn[1] * 2 - 1],
+                global_matrix.V0[conn[2] * 2 - 1],
+                global_matrix.V0[conn[3] * 2 - 1],
             ]
         )
 
-        v0_k = [0.25 * np.sum(v0_x), 0.25 * np.sum(v0_y)]
+        v0_k = np.array([0.25 * np.sum(v0_x), 0.25 * np.sum(v0_y)])
 
         # Velocity gradient per Element "G"
         # G = [[ d(v0k)/dx  , d(v0k)/dxy ],
         #      [ d(v0k)/dyx , d(v0k)/dy  ]]
 
-        d_v0k_x = (
+        d_v0k_x = float(
             elements.inv_Je[0][0]
             * 4
             * (
@@ -48,7 +51,7 @@ def calculation(properties, parameters, mesh, matrices):
             )
         )
 
-        d_v0k_y = (
+        d_v0k_y = float(
             elements.inv_Je[1][1]
             * 4
             * (
@@ -59,7 +62,7 @@ def calculation(properties, parameters, mesh, matrices):
             )
         )
 
-        d_v0k_xy = (
+        d_v0k_xy = float(
             elements.inv_Je[1][1]
             * 4
             * (
@@ -70,7 +73,7 @@ def calculation(properties, parameters, mesh, matrices):
             )
         )
 
-        d_v0k_yx = (
+        d_v0k_yx = float(
             elements.inv_Je[0][0]
             * 4
             * (
@@ -85,12 +88,19 @@ def calculation(properties, parameters, mesh, matrices):
 
         # Elemental Matrices
         elemental_matrices = QuadElement().matrix_generation(
-            elements, parameters, properties, matrix_g, v0_k
+            elements=elements,
+            parameters=parameters,
+            properties=properties,
+            matrix_g=matrix_g,
+            v0_k=v0_k,
         )
 
         # Global Matrices
+        global_matrix.assembly_quad_elements(
+            elemental_matrix=elemental_matrices, connections=mesh.connections[i]
+        )
 
-    return elements
+    return global_matrix
 
 
 class QuadElement:
@@ -100,6 +110,15 @@ class QuadElement:
         self.ke = []
 
     def matrix_generation(self, elements, parameters, properties, matrix_g, v0_k):
+        """
+        Generation of the Elemental matrices, for a QUAD element \n
+        :param elements: information about Jacobian, shape functions
+        :param parameters: of run
+        :param properties: of the material
+        :param matrix_g:
+        :param v0_k:
+        :return: object with elemental matrices
+        """
         degrees_freedom = 8
 
         # generation of -->  m.transpose(m)
@@ -138,37 +157,43 @@ class QuadElement:
         # G - matrix
         # already calculated
 
-        # N - matrix (convective term)
+        # ne - matrix (convective term "N")
         dV = elements.det_Je * elements.w
         self.ne = (
-            np.transpose(elements.H)
-            * (C + np.matmul(matrix_g, elements.H))
+            np.matmul(np.transpose(elements.H), (C + np.matmul(matrix_g, elements.H)))
             * properties.rho
             * dV
         )
+
         # K - matrix (diffusive term)
         k_lan = (
-            np.transpose(np.matmul(elements.inv_Je4, elements.DH4))
-            * mmt
-            * elements.inv_Je4
-            * elements.DH4
+            np.matmul(
+                np.transpose(np.matmul(elements.inv_Je4, elements.DH4)),
+                np.matmul(mmt, np.matmul(elements.inv_Je4, elements.DH4)),
+            )
             * properties.ian
             * dV
         )
+
         k_vv = (
-            np.transpose(np.matmul(elements.inv_Je4, elements.DH4))
-            * 2
+            np.matmul(
+                np.transpose(np.matmul(elements.inv_Je4, elements.DH4)),
+                np.matmul(mmt_mmt, np.matmul(elements.inv_Je4, elements.DH4)),
+            )
+            * dV
+            * 2.0
             * properties.viscocity
-            * mmt_mmt
-            * elements.inv_Je4
-            * elements.DH4
+        )
+
+        # re - results array (F)
+        self.re = (
+            np.matmul(np.transpose(elements.H), np.matmul(matrix_g, np.transpose(v0_k)))
+            * properties.rho
             * dV
         )
 
-        # F - results array
-        self.re = 1
-
         # ke - return matrix
+        self.ke = k_vv - k_lan
 
         return self
 
@@ -193,6 +218,11 @@ class GaussPoint:
         self.inv_Je4 = []
 
     def quad_elements(self):
+        """
+        Shape functions and Jacobians for a QUAD element, with one Gauss point \n
+        :return: object with information
+        """
+
         # Shape functions evaluated in Gauss point
         self.H = np.array(
             [
@@ -200,6 +230,7 @@ class GaussPoint:
                 [0.0, 0.25, 0.0, 0.25, 0.0, 0.25, 0.0, 0.25],
             ]
         )
+
         # Derivate of shape function, evaluated in gauss point
         self.DH = np.array(
             [
@@ -218,6 +249,7 @@ class GaussPoint:
                 [0.0, 0.25, 0.0, 0.25, 0.0, -0.25, 0.0, -0.25],
             ]
         )
+
         # Jacobian of the QUAD element
         self.Je = np.array([[0.05 / 2.0, 0.0], [0.0, 0.05 / 2.0]])
         self.inv_Je = np.linalg.inv(self.Je)
@@ -249,6 +281,12 @@ if __name__ == "__main__":
     parameters_tes = ParameterMaterial()
     mesh_test = MeshData().generation()
     matrices_tes = InitialMatrix(mesh_test)
+    matrices_tes.V0[:] = 1.0
 
-    result = calculation(properties_tes, parameters_tes, mesh_test, matrices_tes)
+    result = global_matrix_calculation(
+        properties=properties_tes,
+        parameters=parameters_tes,
+        mesh=mesh_test,
+        matrices=matrices_tes,
+    )
     a = 1

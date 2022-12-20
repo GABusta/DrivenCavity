@@ -30,15 +30,15 @@ class MeshData:
 
         # Generation of connections
         cont = 0
-        for i in range(self.nodes):
-            cont += 20
-            for j in range(self.nodes):
+        for i in range(self.nodes - 1):
+            cont += 21
+            for j in range(self.nodes - 1):
                 self.connections.append(
                     [
+                        cont + j + 2,
                         cont + j + 1,
-                        cont + j,
-                        cont - self.nodes + j,
                         cont - self.nodes + j + 1,
+                        cont - self.nodes + j + 2,
                     ]
                 )
         # Generate Dirichlet initial conditions
