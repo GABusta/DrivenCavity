@@ -17,21 +17,22 @@ def iterative_solutions(properties, parameters, mesh, initial_matrix):
             properties=properties, parameters=parameters, mesh=mesh, matrices=matrices,
         )
 
+        # Boundary conditions
+        new_matrices.boundary_conditions(properties.initial_velocity, mesh)
+
         # solution
         new_matrices.V0 = np.matmul(
             np.linalg.inv(new_matrices.KG + new_matrices.NG), new_matrices.RG
         )
 
-        # Boundary conditions
-        new_matrices.boundary_conditions(properties.initial_velocity, mesh)
-
         # Error
-
-        # error = 1.0
+        error = np.linalg.norm(matrices.V0 - new_matrices.V0) / np.linalg.norm(
+            matrices.V0
+        )
         iterations += 1
 
         # Reassign new values and override the old ones
-
+        matrices = deepcopy(new_matrices)
 
     return iterations
 
@@ -42,5 +43,14 @@ if __name__ == "__main__":
     mesh = MeshData().generation()
     initial_matrix = InitialMatrix(mesh)
 
-    solution = iterative_solutions(properties, parameters, mesh, initial_matrix)
+    try:
+        solution = iterative_solutions(
+            properties=properties,
+            parameters=parameters,
+            mesh=mesh,
+            initial_matrix=initial_matrix,
+        )
+    except Exception:
+        print("Problem with the solution, maybe some singular matrix")
+
     a = 1

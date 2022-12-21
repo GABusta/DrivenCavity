@@ -70,13 +70,13 @@ class InitialMatrix:
         :return: matrix object, with the BC's applied
         """
 
-        # nodes presented in matrix, with Dirichlet conditions
+        # ---> nodes presented in matrix, with Dirichlet conditions
         velocity_initial_nodes = [
             node
             for node in range(mesh.totalNumberNodes - mesh.nodes, mesh.totalNumberNodes)
         ]
 
-        # BC's on sides and bottom
+        # ---> BC's on sides and bottom
         velocity_zero_nodes = [node for node in range(0, mesh.nodes)]
         velocity_zero_nodes.extend(
             [node for node in range(0, mesh.totalNumberNodes - 1, mesh.nodes)]
@@ -84,6 +84,45 @@ class InitialMatrix:
         velocity_zero_nodes.extend(
             [node for node in range(mesh.nodes - 1, mesh.totalNumberNodes, mesh.nodes)]
         )
+
+        # ---> Replace initial and boundary conditions in matrix
+        for node in velocity_initial_nodes:
+            # Only velocity in "x" direction
+            self.V0[node * 2] = vi
+            for all_nodes in range(node, mesh.totalNumberNodes):
+                if node != all_nodes:
+                    self.RG[all_nodes * 2] += -self.KG[all_nodes * 2, node * 2] * vi - self.NG[all_nodes * 2, node * 2] * vi
+                else:
+                    self.RG[all_nodes * 2] = vi
+
+            self.KG[node * 2, :] = 0.0
+            self.KG[:, node * 2] = 0.0
+            self.KG[node * 2, node * 2] = 1.0
+
+            self.NG[node * 2, :] = 0.0
+            self.NG[:, node * 2] = 0.0
+            self.NG[node * 2, node * 2] = 1.0
+
+        for node in velocity_zero_nodes:
+            # Both directions
+            self.RG[node * 2] = 0.0
+            self.RG[node * 2 + 1] = 0.0
+
+            self.KG[node * 2, :] = 0.0
+            self.KG[:, node * 2] = 0.0
+            self.KG[node * 2, node * 2] = 1.0
+
+            self.NG[node * 2, :] = 0.0
+            self.NG[:, node * 2] = 0.0
+            self.NG[node * 2, node * 2] = 1.0
+
+            self.KG[node * 2 + 1, :] = 0.0
+            self.KG[:, node * 2 + 1] = 0.0
+            self.KG[node * 2 + 1, node * 2 + 1] = 1.0
+
+            self.NG[node * 2 + 1, :] = 0.0
+            self.NG[:, node * 2 + 1] = 0.0
+            self.NG[node * 2 + 1, node * 2 + 1] = 1.0
 
         return self
 
