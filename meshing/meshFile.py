@@ -9,6 +9,7 @@ class MeshData:
     - generation() \n
     - print_mesh()
     """
+
     def __init__(self, n=20, large=1.0):
         self.divisions = n
         self.nodes = n + 1
@@ -28,6 +29,9 @@ class MeshData:
             for j in range(self.nodes):
                 self.coordinates.append([self.distance[j], self.distance[i]])
 
+        self.distance = np.array(self.distance[:])
+        self.coordinates = np.array(self.coordinates[:])
+
         # Generation of connections
         cont = 0
         for i in range(self.nodes - 1):
@@ -41,17 +45,13 @@ class MeshData:
                         cont - self.nodes + j + 2,
                     ]
                 )
+        self.connections = np.array(self.connections[:])
         # Generate Dirichlet initial conditions
 
         return self
 
     def print_mesh(self):
-        x, y = [], []
-        for i in range(len(self.coordinates)):
-            x.append(self.coordinates[i][0])
-            y.append(self.coordinates[i][1])
-
-        plt.scatter(x=x, y=y, c="blue")
+        plt.scatter(x=self.coordinates[:, 0], y=self.coordinates[:, 1], c="blue")
         plt.show()
 
 
