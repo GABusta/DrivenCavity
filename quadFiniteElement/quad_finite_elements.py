@@ -96,7 +96,7 @@ class GaussPoint:
         )
 
         # generation --> mmt_mmt (matrix)
-        self.mmt_mmt = np.matmul(np.transpose(self.I - self.mmt / 3), self.I - self.mmt / 3)
+        self.mmt_mmt = np.dot(np.transpose(self.I - self.mmt / 3), self.I - self.mmt / 3)
         return self
 
 

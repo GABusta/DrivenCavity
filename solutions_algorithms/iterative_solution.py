@@ -24,7 +24,7 @@ class SolutionIterative:
             matrices.apply_boundary_conditions(properties.initial_velocity, mesh)
 
             # solution
-            matrices.V0 = np.matmul(
+            matrices.V0 = np.dot(
                 np.linalg.inv(matrices.KG + matrices.NG), matrices.RG
             )
 
@@ -41,7 +41,7 @@ class SolutionIterative:
 
         self.velocity = matrices.V0
         return self
-
+        # NO ESTA ACTUALIZANDO LAS VELOCIDADES!!!!!!
     def print_quad_elements(self, mesh):
         from Graphics.graphic_solutions import PlotMatrices
 

@@ -181,25 +181,25 @@ class InitialMatrixQuadElement:
         # ne - matrix (convective term "N")
         dV = elements.det_Je * elements.w
         ne = (
-            np.matmul(np.transpose(elements.H), (C + np.matmul(matrix_g, elements.H)))
+            np.dot(np.transpose(elements.H), (C + np.dot(matrix_g, elements.H)))
             * properties.rho
             * dV
         )
 
         # K - matrix (diffusive term)
         k_lan = (
-            np.matmul(
-                np.transpose(np.matmul(elements.inv_Je4, elements.DH4)),
-                np.matmul(mmt, np.matmul(elements.inv_Je4, elements.DH4)),
+            np.dot(
+                np.transpose(np.dot(elements.inv_Je4, elements.DH4)),
+                np.dot(mmt, np.dot(elements.inv_Je4, elements.DH4)),
             )
             * properties.ian
             * dV
         )
 
         k_vv = (
-            np.matmul(
-                np.transpose(np.matmul(elements.inv_Je4, elements.DH4)),
-                np.matmul(mmt_mmt, np.matmul(elements.inv_Je4, elements.DH4)),
+            np.dot(
+                np.transpose(np.dot(elements.inv_Je4, elements.DH4)),
+                np.dot(mmt_mmt, np.dot(elements.inv_Je4, elements.DH4)),
             )
             * dV
             * 2.0
@@ -208,7 +208,7 @@ class InitialMatrixQuadElement:
 
         # re - results array (F)
         re = (
-            np.matmul(np.transpose(elements.H), np.matmul(matrix_g, np.transpose(v0_k)))
+            np.dot(np.transpose(elements.H), np.dot(matrix_g, np.transpose(v0_k)))
             * properties.rho
             * dV
         )
