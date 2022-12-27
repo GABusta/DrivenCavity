@@ -9,19 +9,17 @@ class SolutionIterative:
     def iterative_solutions(self, properties, parameters, mesh, matrices):
         error = 1.0
         iterations = 0
-        previous_velocity = matrices.V0
-        # matrices = deepcopy(initial_matrix)
-        matrices.apply_boundary_conditions(properties.initial_velocity, mesh)
+        previous_velocity = deepcopy(matrices.V0)
+        matrices = matrices.apply_boundary_conditions(properties.initial_velocity, mesh)
 
         while (error >= parameters.tolerance) & (100 > iterations):
-
-            matrices.global_matrix_assembly(
+            matrices = matrices.global_matrix_assembly(
                 properties=properties,
                 parameters=parameters,
                 mesh=mesh)
 
             # Apply boundary conditions
-            matrices.apply_boundary_conditions(properties.initial_velocity, mesh)
+            # matrices.apply_boundary_conditions(properties.initial_velocity, mesh)
 
             # solution
             matrices.V0 = np.dot(

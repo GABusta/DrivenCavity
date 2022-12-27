@@ -164,21 +164,15 @@ class InitialMatrixQuadElement:
         I = elements.I
         mmt_mmt = elements.mmt_mmt
 
-        # Initial matrices
-        # k_lan = np.zeros((degrees_freedom, degrees_freedom))
-        # k_vv = np.zeros((degrees_freedom, degrees_freedom))
-        # ne = np.zeros((degrees_freedom, degrees_freedom))
-        # re = np.zeros((degrees_freedom, 1))
-
-        # C - matrix
+        # C -> matrix
         dHv_dx = elements.DH[:2, :] * elements.inv_Je[0, 0]
         dHv_dy = elements.DH[2:, :] * elements.inv_Je[1, 1]
         C = v0_k[0] * dHv_dx + v0_k[1] * dHv_dy
 
-        # G - matrix
+        # G -> matrix
         # already calculated
 
-        # ne - matrix (convective term "N")
+        # ne -> matrix (convective term "N")
         dV = elements.det_Je * elements.w
         ne = (
             np.dot(np.transpose(elements.H), (C + np.dot(matrix_g, elements.H)))
@@ -186,7 +180,7 @@ class InitialMatrixQuadElement:
             * dV
         )
 
-        # K - matrix (diffusive term)
+        # K -> matrix (diffusive term)
         k_lan = (
             np.dot(
                 np.transpose(np.dot(elements.inv_Je4, elements.DH4)),
@@ -206,14 +200,14 @@ class InitialMatrixQuadElement:
             * properties.viscocity
         )
 
-        # re - results array (F)
+        # re -> results array (F)
         re = (
             np.dot(np.transpose(elements.H), np.dot(matrix_g, np.transpose(v0_k)))
             * properties.rho
             * dV
         )
 
-        # ke - return matrix
+        # ke -> return matrix
         ke = k_vv - k_lan
 
         return ke, ne, re

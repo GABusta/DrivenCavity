@@ -6,8 +6,8 @@ class PlotMatrices:
     @staticmethod
     def plot_streamline_quad_element(velocity, mesh):
         #  no est'an bien aplicadas las vel. de borde
-        vx = np.array([vel for i, vel in enumerate(velocity) if (i + 1) % 2 == 0])
-        vy = np.array([vel for i, vel in enumerate(velocity) if (i + 1) % 2 != 0])
+        vy = np.array([vel for i, vel in enumerate(velocity) if (i + 1) % 2 == 0])
+        vx = np.array([vel for i, vel in enumerate(velocity) if (i + 1) % 2 != 0])
 
         x = mesh.coordinates[:, 0].reshape(mesh.nodes, mesh.nodes)
         y = mesh.coordinates[:, 1].reshape(mesh.nodes, mesh.nodes)
