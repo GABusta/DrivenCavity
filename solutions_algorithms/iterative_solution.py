@@ -14,9 +14,8 @@ class SolutionIterative:
 
         while (error >= parameters.tolerance) & (100 > iterations):
             matrices = matrices.quad_global_matrix_assembly(
-                properties=properties,
-                parameters=parameters,
-                mesh=mesh)
+                properties=properties, parameters=parameters, mesh=mesh
+            )
 
             # solution
             matrices.V0 = np.linalg.solve((matrices.KG + matrices.NG), matrices.RG)

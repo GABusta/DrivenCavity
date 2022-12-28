@@ -148,7 +148,9 @@ class InitialMatrixQuadElement:
         return self
 
     @staticmethod
-    def quad_elemental_matrix_generation(elements, parameters, properties, matrix_g, v0_k):
+    def quad_elemental_matrix_generation(
+        elements, parameters, properties, matrix_g, v0_k
+    ):
         """
         Generation of the Elemental matrices, for a QUAD element with one Gauss point \n
         :param elements: information about Jacobian, shape functions
@@ -254,10 +256,10 @@ class InitialMatrixQuadElement:
                 elements.inv_Je[0][0]
                 * 4
                 * (
-                        v0_x[0] * elements.DH[0][0]
-                        + v0_x[1] * elements.DH[0][2]
-                        + v0_x[2] * elements.DH[0][4]
-                        + v0_x[3] * elements.DH[0][6]
+                    v0_x[0] * elements.DH[0][0]
+                    + v0_x[1] * elements.DH[0][2]
+                    + v0_x[2] * elements.DH[0][4]
+                    + v0_x[3] * elements.DH[0][6]
                 )
             )
 
@@ -265,10 +267,10 @@ class InitialMatrixQuadElement:
                 elements.inv_Je[1][1]
                 * 4
                 * (
-                        v0_y[0] * elements.DH[2][1]
-                        + v0_y[1] * elements.DH[2][3]
-                        + v0_y[2] * elements.DH[2][5]
-                        + v0_y[3] * elements.DH[2][7]
+                    v0_y[0] * elements.DH[2][1]
+                    + v0_y[1] * elements.DH[2][3]
+                    + v0_y[2] * elements.DH[2][5]
+                    + v0_y[3] * elements.DH[2][7]
                 )
             )
 
@@ -276,10 +278,10 @@ class InitialMatrixQuadElement:
                 elements.inv_Je[1][1]
                 * 4
                 * (
-                        v0_x[0] * elements.DH[2][0]
-                        + v0_x[1] * elements.DH[2][2]
-                        + v0_x[2] * elements.DH[2][4]
-                        + v0_x[3] * elements.DH[2][6]
+                    v0_x[0] * elements.DH[2][0]
+                    + v0_x[1] * elements.DH[2][2]
+                    + v0_x[2] * elements.DH[2][4]
+                    + v0_x[3] * elements.DH[2][6]
                 )
             )
 
@@ -287,10 +289,10 @@ class InitialMatrixQuadElement:
                 elements.inv_Je[0][0]
                 * 4
                 * (
-                        v0_y[0] * elements.DH[0][1]
-                        + v0_y[1] * elements.DH[0][3]
-                        + v0_y[2] * elements.DH[0][5]
-                        + v0_y[3] * elements.DH[0][7]
+                    v0_y[0] * elements.DH[0][1]
+                    + v0_y[1] * elements.DH[0][3]
+                    + v0_y[2] * elements.DH[0][5]
+                    + v0_y[3] * elements.DH[0][7]
                 )
             )
 
@@ -306,7 +308,9 @@ class InitialMatrixQuadElement:
             )
 
             # Global Matrices
-            self.assembly_elemental_quad_matrix(ke, ne, re, connections=mesh.connections[i])
+            self.assembly_elemental_quad_matrix(
+                ke, ne, re, connections=mesh.connections[i]
+            )
 
         return self
 
