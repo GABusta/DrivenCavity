@@ -13,18 +13,13 @@ class SolutionIterative:
         matrices = matrices.apply_boundary_conditions(properties.initial_velocity, mesh)
 
         while (error >= parameters.tolerance) & (100 > iterations):
-            matrices = matrices.global_matrix_assembly(
+            matrices = matrices.quad_global_matrix_assembly(
                 properties=properties,
                 parameters=parameters,
                 mesh=mesh)
 
-            # Apply boundary conditions
-            # matrices.apply_boundary_conditions(properties.initial_velocity, mesh)
-
             # solution
-            matrices.V0 = np.dot(
-                np.linalg.inv(matrices.KG + matrices.NG), matrices.RG
-            )
+            matrices.V0 = np.linalg.solve((matrices.KG + matrices.NG), matrices.RG)
 
             # Error
             error = np.linalg.norm(matrices.V0 - previous_velocity) / np.linalg.norm(
@@ -34,13 +29,11 @@ class SolutionIterative:
 
             previous_velocity = matrices.V0
 
-            # # Reassign new values and override the old ones
-            # initial_matrix = deepcopy(matrices)
-
         self.velocity = matrices.V0
+
         return self
-        # NO ESTA ACTUALIZANDO LAS VELOCIDADES!!!!!!
-    def print_quad_elements(self, mesh):
+
+    def plot_quad_elements_solutions(self, mesh):
         from Graphics.graphic_solutions import PlotMatrices
 
         image = PlotMatrices()

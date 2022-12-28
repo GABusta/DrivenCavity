@@ -1,5 +1,5 @@
 import numpy as np
-from quadFiniteElement.quad_finite_elements import GaussPoint
+from quadFiniteElement.quad_finite_elements import OneGaussPoint
 
 
 class InitialMatrixQuadElement:
@@ -13,7 +13,7 @@ class InitialMatrixQuadElement:
         self.RG = np.zeros((mesh.totalNumberNodes * 2, 1))
         self.V0 = np.zeros((mesh.totalNumberNodes * 2, 1))
 
-    def assembly_elemental_matrix(self, ke, ne, re, connections):
+    def assembly_elemental_quad_matrix(self, ke, ne, re, connections):
         """
         Assembly of the elemental matrices (ke,ne,re) into Global (KG, NG, RG), one by one \n
         :param ke, ne, re:
@@ -23,7 +23,7 @@ class InitialMatrixQuadElement:
         for row_node, row in enumerate(connections):
             for column_node, column in enumerate(connections):
 
-                # Global diffussion matrix - KG
+                # Global diffusion matrix - KG
                 self.KG[row * 2 - 2, column * 2 - 2] += ke[
                     row_node * 2, column_node * 2
                 ]
@@ -148,7 +148,7 @@ class InitialMatrixQuadElement:
         return self
 
     @staticmethod
-    def elemental_matrix_generation(elements, parameters, properties, matrix_g, v0_k):
+    def quad_elemental_matrix_generation(elements, parameters, properties, matrix_g, v0_k):
         """
         Generation of the Elemental matrices, for a QUAD element with one Gauss point \n
         :param elements: information about Jacobian, shape functions
@@ -212,8 +212,8 @@ class InitialMatrixQuadElement:
 
         return ke, ne, re
 
-    def global_matrix_assembly(self, properties, parameters, mesh):
-        elements = GaussPoint().quad_elements()
+    def quad_global_matrix_assembly(self, properties, parameters, mesh):
+        elements = OneGaussPoint().quad_elements()
         # global_matrix = deepcopy(matrices)
 
         for i in range(mesh.totalNumberElements):
@@ -297,7 +297,7 @@ class InitialMatrixQuadElement:
             matrix_g = np.array([[d_v0k_x, d_v0k_xy], [d_v0k_yx, d_v0k_y]])
 
             # Elemental Matrices
-            ke, ne, re = self.elemental_matrix_generation(
+            ke, ne, re = self.quad_elemental_matrix_generation(
                 elements=elements,
                 parameters=parameters,
                 properties=properties,
@@ -306,15 +306,15 @@ class InitialMatrixQuadElement:
             )
 
             # Global Matrices
-            self.assembly_elemental_matrix(ke, ne, re, connections=mesh.connections[i])
+            self.assembly_elemental_quad_matrix(ke, ne, re, connections=mesh.connections[i])
 
         return self
 
 
 # --- test for initial matrix script ---
 if __name__ == "__main__":
-    from meshing.meshFile import MeshData
+    from meshing.meshFile import TestMeshData
 
-    mesh_test = MeshData()
+    mesh_test = TestMeshData()
     matrix_test = InitialMatrixQuadElement(mesh_test)
     a = 1

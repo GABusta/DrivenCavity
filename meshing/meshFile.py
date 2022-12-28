@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class MeshData:
+class TestMeshData:
     """
     Initial mesh data, for a square cavity \n
     available methods: \n
@@ -21,6 +21,10 @@ class MeshData:
         self.totalNumberElements = self.divisions ** 2
 
     def generation(self):
+        """
+        Generation of coordinates and connections
+        :return: self
+        """
 
         # Generation of coordinates
         self.distance = [i * self.dx for i in range(self.nodes)]
@@ -46,7 +50,6 @@ class MeshData:
                     ]
                 )
         self.connections = np.array(self.connections[:])
-        # Generate Dirichlet initial conditions
 
         return self
 
@@ -57,6 +60,6 @@ class MeshData:
 
 # --- test for the meshing script ---
 if __name__ == "__main__":
-    mesh = MeshData().generation()
+    mesh = TestMeshData().generation()
     mesh.print_mesh()
     a = 1

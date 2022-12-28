@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class GaussPoint:
+class OneGaussPoint:
     """
     Only one gauss point located at center of the QUAD element of 4 nodes. \n
     "quad_elements" method fills the object \n
@@ -104,18 +104,12 @@ class GaussPoint:
 if __name__ == "__main__":
     from initialConditions.initialMatrices import InitialMatrixQuadElement
     from initialConditions.initialParameters import ParameterMaterial, PropertyMaterial
-    from meshing.meshFile import MeshData
+    from meshing.meshFile import TestMeshData
 
     properties_tes = PropertyMaterial()
     parameters_tes = ParameterMaterial()
-    mesh_test = MeshData().generation()
+    mesh_test = TestMeshData().generation()
     matrices_tes = InitialMatrixQuadElement(mesh_test)
     matrices_tes.V0[:] = 1.0
 
-    result = global_matrix_assembly(
-        properties=properties_tes,
-        parameters=parameters_tes,
-        mesh=mesh_test,
-        matrices=matrices_tes,
-    )
     a = 1
