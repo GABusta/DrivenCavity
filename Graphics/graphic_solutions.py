@@ -17,7 +17,7 @@ class PlotMatrices:
         mag = np.sqrt(vx ** 2 + vy ** 2)
         mag_new = mag.reshape(mesh.nodes, mesh.nodes)
 
-        plt.figure(figsize=(50, 50))
+        plt.figure(figsize=(100, 100))
         fig, ax = plt.subplots(1)
         q = ax.quiver(x, y, vx_new, vy_new, mag, cmap="plasma")
         fig.colorbar(q, label="Velocity vectors")

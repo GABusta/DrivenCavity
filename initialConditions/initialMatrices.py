@@ -63,7 +63,7 @@ class InitialMatrixQuadElement:
 
         return self
 
-    def apply_boundary_conditions(self, vi, mesh):
+    def apply_boundary_conditions_driven_cavity(self, vi, mesh):
         """
         Apply the boundary conditions for the driven cavity problem \n
         :param vi: initial velocity, in this case in the "x" direction
@@ -128,6 +128,112 @@ class InitialMatrixQuadElement:
                 else:
                     self.RG[all_nodes * 2] = vi
                     self.RG[all_nodes * 2 + 1] = 0.0
+
+            self.KG[node * 2, :] = 0.0
+            self.KG[:, node * 2] = 0.0
+            self.KG[node * 2, node * 2] = 1.0
+
+            self.KG[node * 2 + 1, :] = 0.0
+            self.KG[:, node * 2 + 1] = 0.0
+            self.KG[node * 2 + 1, node * 2 + 1] = 1.0
+
+            self.NG[node * 2, :] = 0.0
+            self.NG[:, node * 2] = 0.0
+            self.NG[node * 2, node * 2] = 1.0
+
+            self.NG[node * 2 + 1, :] = 0.0
+            self.NG[:, node * 2 + 1] = 0.0
+            self.NG[node * 2 + 1, node * 2 + 1] = 1.0
+
+        return self
+
+    def apply_boundary_conditions_test_01(self, vi, mesh):
+        """
+        Apply the boundary conditions for 1 entry and 1 out \n
+        :param vi: initial velocity, in this case in the "y" direction
+        :param mesh: mesh object with information about the mesh
+        :return: self
+        """
+
+        # ---> nodes presented in matrix, with Dirichlet conditions
+        velocity_initial_nodes = [
+            node
+            for node in range(
+                mesh.totalNumberNodes - mesh.nodes,
+                mesh.totalNumberNodes - mesh.nodes // 2,
+            )
+        ]
+
+        # ---> BC's on sides and bottom
+        velocity_zero_nodes = [node for node in range(0, mesh.nodes)]
+        velocity_zero_nodes.extend(
+            [node for node in range(0, mesh.totalNumberNodes - 1, mesh.nodes)]
+        )
+        velocity_zero_nodes.extend(
+            [
+                node
+                for node in range(
+                    mesh.nodes - 1 + (mesh.nodes // 2) * mesh.nodes,
+                    mesh.totalNumberNodes,
+                    mesh.nodes,
+                )
+            ]
+        )
+
+        velocity_zero_nodes.extend(
+            [
+                node
+                for node in range(
+                    mesh.totalNumberNodes - mesh.nodes // 2,
+                    mesh.totalNumberNodes,
+                    mesh.nodes,
+                )
+            ]
+        )
+
+        # ---> Replace initial and boundary conditions in matrix
+        for node in velocity_zero_nodes:
+            # Both directions
+            self.RG[node * 2] = 0.0
+            self.RG[node * 2 + 1] = 0.0
+
+            self.KG[node * 2, :] = 0.0
+            self.KG[:, node * 2] = 0.0
+            self.KG[node * 2, node * 2] = 1.0
+
+            self.KG[node * 2 + 1, :] = 0.0
+            self.KG[:, node * 2 + 1] = 0.0
+            self.KG[node * 2 + 1, node * 2 + 1] = 1.0
+
+            self.NG[node * 2, :] = 0.0
+            self.NG[:, node * 2] = 0.0
+            self.NG[node * 2, node * 2] = 1.0
+
+            self.NG[node * 2 + 1, :] = 0.0
+            self.NG[:, node * 2 + 1] = 0.0
+            self.NG[node * 2 + 1, node * 2 + 1] = 1.0
+
+            self.V0[node * 2] = 0.0
+            self.V0[node * 2 + 1] = 0.0
+
+        for node in velocity_initial_nodes:
+            # Only velocity in "x" direction
+            self.V0[node * 2] = 0.0
+            self.V0[node * 2 + 1] = -vi
+            for all_nodes in range(node, mesh.totalNumberNodes):
+                if node != all_nodes:
+                    # x - coordinate
+                    self.RG[all_nodes * 2] += 0.0
+
+                    # y - coordinate
+                    self.RG[all_nodes * 2 + 1] += (
+                        +self.KG[all_nodes * 2 + 1, node * 2 + 1] * vi
+                        + self.NG[all_nodes * 2 + 1, node * 2 + 1] * vi
+                    )
+
+                else:
+                    self.RG[all_nodes * 2] = 0.0
+                    self.RG[all_nodes * 2 + 1] = -vi
 
             self.KG[node * 2, :] = 0.0
             self.KG[:, node * 2] = 0.0
