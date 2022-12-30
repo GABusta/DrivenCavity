@@ -11,6 +11,10 @@ The solution can be represented in a graphic with the vectors of the velocity as
 
 ![Screenshot](./images/solution.png)
 
+And if we change the boundary conditions, we can observe the next distribution of velocities
+
+![Screenshot](./images/solution_test01.png)
+
 ### Note:
 * You can find the whole project solved
 * You can find a requirements.txt with all the necessary packages
