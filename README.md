@@ -20,4 +20,6 @@ And if we change the boundary conditions, we can observe the next distribution o
 * You can find a requirements.txt with all the necessary packages
 * This project was made only with academics purposes
 
+The report is found here 
+
 [report.pdf](https://github.com/GABusta/DrivenCavity/blob/main/report.pdf)
